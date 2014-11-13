@@ -30,7 +30,7 @@ class CRUDJobController extends Controller
 			$message = sprintf('SUCCESS [%s] in job [%s]#%s', $object->getServiceId(), $object->getName(), $object->getId());
 			$type = 'sonata_flash_success';
 		} catch (\Exception $e) {
-			$message = sprintf('FAILURE [%s] in job [%s]#%s', $object->getServiceId(), $object->getName(), $object->getId());
+			$message = sprintf('FAILURE [%s] in job [%s]#%s - message : %s', $object->getServiceId(), $object->getName(), $object->getId(), $e->getMessage());
 			$type = 'sonata_flash_error';
 		}
 
