@@ -5,10 +5,8 @@ namespace Jerive\Bundle\SchedulerBundle\Admin;
 use Sonata\AdminBundle\Admin\Admin;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
-use Sonata\AdminBundle\Validator\ErrorElement;
-use Sonata\AdminBundle\Form\FormMapper;
-
 use Jerive\Bundle\SchedulerBundle\Entity\Job;
+use Sonata\AdminBundle\Route\RouteCollection;
 
 class JobAdmin extends Admin
 {
@@ -18,7 +16,6 @@ class JobAdmin extends Admin
             ->add('name')
             ->add('serviceId')
             ->add('tags', null, array(), null, array(
-                //'expanded' => true,
                 'multiple' => true,
             ))
             ->add('nextExecutionDate', 'doctrine_orm_date_range')
@@ -29,6 +26,13 @@ class JobAdmin extends Admin
                     Job::STATUS_WAITING => 'Waiting',
                     Job::STATUS_TERMINATED => 'Ended',
                 ),
+            ))
+            ->add('_action', 'actions', array(
+                'actions' => array(
+                    'execute' => array(
+                        'template'  => 'JeriveSchedulerBundle:Sonata:list__action_execute.html.twig',
+                    ),
+                )
             ))
         ;
     }
@@ -42,6 +46,17 @@ class JobAdmin extends Admin
             ->add('executionCount')
             ->add('status')
 
+        ;
+    }
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection
+            ->add('execute', $this->getRouterIdParameter().'/execute')
+            ->remove('show')
+            ->remove('create')
+            ->remove('edit')
+            ->remove('batch')
         ;
     }
 }

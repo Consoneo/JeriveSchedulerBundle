@@ -1,16 +1,14 @@
-parameters:
-    jerive_scheduler.proxy.class:     Jerive\Bundle\SchedulerBundle\Schedule\DelayedProxy
-    jerive_scheduler.scheduler.class: Jerive\Bundle\SchedulerBundle\Schedule\Scheduler
-
 services:
     jerive_scheduler.proxy:
-        class: %jerive_scheduler.proxy.class%
+        class: Jerive\Bundle\SchedulerBundle\Schedule\DelayedProxy
         scope: prototype
-        calls:
-            - [setDoctrine, ["@doctrine"]]
+        arguments:
+            - "@doctrine.orm.entity_manager"
 
     jerive_scheduler.scheduler:
-        class: %jerive_scheduler.scheduler.class%
+        class: Jerive\Bundle\SchedulerBundle\Schedule\Scheduler
+        arguments:
+            - "@doctrine.orm.entity_manager"
         calls:
             - [setContainer, ["@service_container"]]
 
@@ -24,4 +22,4 @@ services:
         arguments:
             - ~
             - Jerive\Bundle\SchedulerBundle\Entity\Job
-            - SonataAdminBundle:CRUD
+            - JeriveSchedulerBundle:CRUDJob

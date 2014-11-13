@@ -2,6 +2,7 @@
 
 namespace Jerive\Bundle\SchedulerBundle\Schedule;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -9,7 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Monolog\Logger;
 use Jerive\Bundle\SchedulerBundle\Entity\Job;
 use Jerive\Bundle\SchedulerBundle\Entity\JobTag;
-use Jerive\Bundle\SchedulerBundle\Schedule\ScheduledServiceInterface;
 
 /**
  * Description of Scheduler
@@ -27,6 +27,16 @@ class Scheduler implements ContainerAwareInterface
      * @var OutputInterface
      */
     protected $output;
+
+    /**
+     * @var EntityManager
+     */
+    protected $em;
+
+    public function __construct(EntityManager $em)
+    {
+        $this->em =  $em;
+    }
 
     public function setContainer(ContainerInterface $container = null)
     {
@@ -51,8 +61,8 @@ class Scheduler implements ContainerAwareInterface
 
     /**
      * @param string $serviceId
-     * @return \Jerive\Bundle\SchedulerBundle\Entity\Job
-     * @throws \RuntimeException
+     * @param null $name
+     * @return Job
      */
     public function createJob($serviceId, $name = null)
     {
@@ -83,10 +93,11 @@ class Scheduler implements ContainerAwareInterface
                 }
             }
 
-            $qb = $this->container->get('doctrine')->getManager()->getRepository('JeriveSchedulerBundle:JobTag')->createQueryBuilder('t');
+            $qb = $this->em->getRepository('JeriveSchedulerBundle:JobTag')->createQueryBuilder('t');
             $qb->where($qb->expr()->in('t.name', array_values($names)));
 
             foreach($qb->getQuery()->getResult() as $tag) {
+                /** @var $tag JobTag */
                 unset($names[$tag->getName()]);
                 $collection->add($tag);
             }
@@ -105,8 +116,8 @@ class Scheduler implements ContainerAwareInterface
     {
         $this->processTags($job);
 
-        $this->getManager()->persist($job);
-        $this->getManager()->flush($job);
+        $this->em->persist($job);
+        $this->em->flush($job);
 
         return $this;
     }
@@ -117,6 +128,7 @@ class Scheduler implements ContainerAwareInterface
     public function executeJobs()
     {
         foreach($this->getJobRepository()->getExecutableJobs() as $job) {
+            /** @var $job Job */
             $job->prepareForExecution();
             $this->getManager()->persist($job);
             $this->getManager()->flush($job);
@@ -142,11 +154,12 @@ class Scheduler implements ContainerAwareInterface
     public function cleanJobs()
     {
         foreach($this->getJobRepository()->getRemovableJobs() as $job) {
+            /** @var $job Job */
             $this->getManager()->remove($job);
             $this->log(Logger::INFO, sprintf('REMOVE job [%s]#%s', $job->getName(), $job->getId()));
         }
 
-        $this->getManager()->flush();
+        $this->em->flush();
         return $this;
     }
 
@@ -191,7 +204,7 @@ class Scheduler implements ContainerAwareInterface
      */
     protected function getJobRepository()
     {
-        return $this->getManager()->getRepository('JeriveSchedulerBundle:Job');
+        return $this->em->getRepository('JeriveSchedulerBundle:Job');
     }
 
     /**
@@ -199,6 +212,6 @@ class Scheduler implements ContainerAwareInterface
      */
     protected function getManager()
     {
-        return $this->container->get('doctrine')->getManager();
+        return $this->em;
     }
 }

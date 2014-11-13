@@ -2,8 +2,7 @@
 
 namespace Jerive\Bundle\SchedulerBundle\Schedule;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Jerive\Bundle\SchedulerBundle\Schedule\ScheduledServiceInterface;
+use Doctrine\ORM\EntityManager;
 
 /**
  * Description of DelayedProxy
@@ -22,23 +21,18 @@ class DelayedProxy implements \Serializable
     protected $actions = array();
 
     /**
-     * @var Registry
+     * @var EntityManager
      */
-    protected $doctrine;
+    protected $em;
 
     /**
      * @var object
      */
     protected $service;
 
-    /**
-     * @param Registry $doctrine
-     * @return DelayedProxy
-     */
-    public function setDoctrine(Registry $doctrine)
+    public function __construct(EntityManager $em)
     {
-        $this->doctrine = $doctrine;
-        return $this;
+        $this->em = $em;
     }
 
     public function serialize()
@@ -58,6 +52,7 @@ class DelayedProxy implements \Serializable
     }
 
     /**
+     * @param ScheduledServiceInterface $service
      * @return DelayedProxy
      */
     public function setService(ScheduledServiceInterface $service)
@@ -66,9 +61,6 @@ class DelayedProxy implements \Serializable
         return $this;
     }
 
-    /**
-     * @param ScheduledServiceInterface $service
-     */
     public function execute()
     {
         foreach($this->actions as $action) {
@@ -77,7 +69,7 @@ class DelayedProxy implements \Serializable
                 list($type, $realparam) = $param;
                 if ($type == self::PARAM_TYPE_ENTITY) {
                     list($id, $class) = $realparam;
-                    $param = $this->doctrine->getManager()->find($class, $id);
+                    $param = $this->em->find($class, $id);
                 } else {
                     $param = $realparam;
                 }
@@ -105,9 +97,9 @@ class DelayedProxy implements \Serializable
                 throw new \RuntimeException('Can not store resources');
             }
 
-            if (is_object($param) && $this->getEntityManager()->contains($param)) {
+            if (is_object($param) && $this->em->contains($param)) {
                 $class    = get_class($param);
-                $metadata = $this->getEntityManager()->getClassMetadata($class);
+                $metadata = $this->em->getClassMetadata($class);
                 $param    = array(self::PARAM_TYPE_ENTITY, array(
                     $metadata->getIdentifierValues($param),
                     $class
@@ -123,22 +115,13 @@ class DelayedProxy implements \Serializable
     }
 
     /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    public function getEntityManager()
-    {
-        return $this->doctrine->getManager();
-    }
-
-    /**
      * @param object $entity
      * @return string
      */
     public function getTagForEntity($entity)
     {
-        $manager    = $this->getEntityManager();
-        $entity     = $manager->merge($entity);
-        $metadata   = $manager->getClassMetadata(get_class($entity));
+        $entity     = $this->em->merge($entity);
+        $metadata   = $this->em->getClassMetadata(get_class($entity));
         $reflection = $metadata->getReflectionClass();
 
         return $reflection->getName() . '_' . implode('_', $metadata->getIdentifierValues($entity));

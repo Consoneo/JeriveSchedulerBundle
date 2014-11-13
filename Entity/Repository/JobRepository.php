@@ -3,6 +3,7 @@
 namespace Jerive\Bundle\SchedulerBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Jerive\Bundle\SchedulerBundle\Entity\Job;
 
 /**
@@ -59,7 +60,7 @@ class JobRepository extends EntityRepository
 
     /**
      * @param array$tags
-     * @return \Doctrine\DBAL\Query\QueryBuilder
+     * @return QueryBuilder
      */
     public function getQueryBuilderForTags($tags)
     {

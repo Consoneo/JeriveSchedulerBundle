@@ -5,9 +5,9 @@ namespace Jerive\Bundle\SchedulerBundle\Entity;
 use Jerive\Bundle\SchedulerBundle\Schedule\ScheduledServiceInterface;
 use Jerive\Bundle\SchedulerBundle\Schedule\DelayedProxy;
 
-use Symfony\Component\HttpKernel\Exception\FlattenException;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Debug\Exception\FlattenException;
 
 /**
  * @ORM\HasLifecycleCallbacks
@@ -185,7 +185,7 @@ class Job
     /**
      * Set params
      *
-     * @param string $params
+     * @param $proxy
      * @return Job
      */
     public function setProxy($proxy)
@@ -216,6 +216,7 @@ class Job
 
     /**
      * @param ScheduledServiceInterface $service
+     * @throws \Exception
      */
     public function execute(ScheduledServiceInterface $service)
     {
@@ -272,7 +273,7 @@ class Job
     }
 
     /**
-     * @param string $intervalSpec Period (strtotime or ISO-8601)
+     * @param $spec
      * @return Job
      */
     public function setScheduledIn($spec)
@@ -379,6 +380,7 @@ class Job
 
     /**
      * @param <JobTag|ArrayCollection|array|string> $tag
+     * @return $this
      */
     public function addTag($tag)
     {
