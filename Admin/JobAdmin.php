@@ -10,6 +10,17 @@ use Sonata\AdminBundle\Route\RouteCollection;
 
 class JobAdmin extends Admin
 {
+    /**
+     * Default Datagrid values
+     *
+     * @var array
+     */
+    protected $datagridValues = array(
+        '_page' => 1,
+        '_sort_order' => 'DESC',
+        '_sort_by' => 'id'
+    );
+
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
