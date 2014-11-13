@@ -27,13 +27,7 @@ class JobAdmin extends Admin
                     Job::STATUS_TERMINATED => 'Ended',
                 ),
             ))
-            ->add('_action', 'actions', array(
-                'actions' => array(
-                    'execute' => array(
-                        'template'  => 'JeriveSchedulerBundle:Sonata:list__action_execute.html.twig',
-                    ),
-                )
-            ))
+
         ;
     }
 
@@ -45,7 +39,13 @@ class JobAdmin extends Admin
             ->add('nextExecutionDate')
             ->add('executionCount')
             ->add('status')
-
+            ->add('_action', 'actions', array(
+                'actions' => array(
+                    'execute' => array(
+                        'template'  => 'JeriveSchedulerBundle:Sonata:list__action_execute.html.twig',
+                    ),
+                )
+            ))
         ;
     }
 
