@@ -2,8 +2,8 @@ services:
     jerive_scheduler.proxy:
         class: Jerive\Bundle\SchedulerBundle\Schedule\DelayedProxy
         scope: prototype
-        arguments:
-            - "@doctrine.orm.entity_manager"
+        calls:
+            - [setDoctrine, ["@doctrine"]]
 
     jerive_scheduler.scheduler:
         class: Jerive\Bundle\SchedulerBundle\Schedule\Scheduler

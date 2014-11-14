@@ -2,7 +2,7 @@
 
 namespace Jerive\Bundle\SchedulerBundle\Schedule;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 
 /**
  * Description of DelayedProxy
@@ -21,18 +21,23 @@ class DelayedProxy implements \Serializable
     protected $actions = array();
 
     /**
-     * @var EntityManager
+     * @var Registry
      */
-    protected $em;
+    protected $doctrine;
 
     /**
      * @var object
      */
     protected $service;
 
-    public function __construct(EntityManager $em)
+    /**
+     * @param Registry $doctrine
+     * @return DelayedProxy
+     */
+    public function setDoctrine(Registry $doctrine)
     {
-        $this->em = $em;
+        $this->doctrine = $doctrine;
+        return $this;
     }
 
     public function serialize()
@@ -69,7 +74,7 @@ class DelayedProxy implements \Serializable
                 list($type, $realparam) = $param;
                 if ($type == self::PARAM_TYPE_ENTITY) {
                     list($id, $class) = $realparam;
-                    $param = $this->em->find($class, $id);
+                    $param = $this->doctrine->getManager()->find($class, $id);
                 } else {
                     $param = $realparam;
                 }
@@ -97,9 +102,9 @@ class DelayedProxy implements \Serializable
                 throw new \RuntimeException('Can not store resources');
             }
 
-            if (is_object($param) && $this->em->contains($param)) {
+            if (is_object($param) && $this->getEntityManager()->contains($param)) {
                 $class    = get_class($param);
-                $metadata = $this->em->getClassMetadata($class);
+                $metadata = $this->getEntityManager()->getClassMetadata($class);
                 $param    = array(self::PARAM_TYPE_ENTITY, array(
                     $metadata->getIdentifierValues($param),
                     $class
@@ -115,13 +120,22 @@ class DelayedProxy implements \Serializable
     }
 
     /**
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->doctrine->getManager();
+    }
+
+    /**
      * @param object $entity
      * @return string
      */
     public function getTagForEntity($entity)
     {
-        $entity     = $this->em->merge($entity);
-        $metadata   = $this->em->getClassMetadata(get_class($entity));
+        $manager    = $this->getEntityManager();
+        $entity     = $manager->merge($entity);
+        $metadata   = $manager->getClassMetadata(get_class($entity));
         $reflection = $metadata->getReflectionClass();
 
         return $reflection->getName() . '_' . implode('_', $metadata->getIdentifierValues($entity));

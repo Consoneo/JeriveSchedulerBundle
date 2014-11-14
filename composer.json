@@ -14,7 +14,8 @@
     "monolog/monolog": "1.11.*@dev",
     "sonata-project/doctrine-orm-admin-bundle": "dev-master",
     "sonata-project/admin-bundle": "dev-master",
-    "sonata-project/core-bundle": "dev-master"
+    "sonata-project/core-bundle": "dev-master",
+    "doctrine/doctrine-bundle": "*"
     },
     "autoload": {
         "psr-0": { "Jerive\\Bundle\\SchedulerBundle": "" }
