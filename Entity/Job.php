@@ -260,6 +260,7 @@ class Job
                 return;
             }
         }
+        return $this;
     }
 
     /**

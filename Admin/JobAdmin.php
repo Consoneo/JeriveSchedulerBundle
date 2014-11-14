@@ -67,7 +67,6 @@ class JobAdmin extends Admin
             ->remove('show')
             ->remove('create')
             ->remove('edit')
-            ->remove('batch')
         ;
     }
 }

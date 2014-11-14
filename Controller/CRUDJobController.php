@@ -34,7 +34,6 @@ class CRUDJobController extends Controller
 			$type = 'sonata_flash_error';
 		}
 
-		$this->getDoctrine()->resetManager();
 		$this->getDoctrine()->getManager()->persist($object);
 		$this->getDoctrine()->getManager()->flush();
 
