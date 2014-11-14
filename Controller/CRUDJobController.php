@@ -21,11 +21,11 @@ class CRUDJobController extends Controller
 		}
 
 		$object->prepareForExecution();
-		$this->container->get('doctrine')->getManager()->persist($object);
-		$this->container->get('doctrine')->getManager()->flush($object);
+		$this->getDoctrine()->getManager()->persist($object);
+		$this->getDoctrine()->getManager()->flush($object);
 
 		try {
-			$object->getProxy()->setDoctrine($this->container->get('doctrine'));
+			$object->getProxy()->setDoctrine($this->getDoctrine());
 			$object->execute($this->container->get($object->getServiceId()));
 			$message = sprintf('SUCCESS [%s] in job [%s]#%s', $object->getServiceId(), $object->getName(), $object->getId());
 			$type = 'sonata_flash_success';
@@ -34,8 +34,9 @@ class CRUDJobController extends Controller
 			$type = 'sonata_flash_error';
 		}
 
-		$this->container->get('doctrine')->getManager()->persist($object);
-		$this->container->get('doctrine')->getManager()->flush($object);
+		$this->getDoctrine()->resetManager();
+		$this->getDoctrine()->getManager()->persist($object);
+		$this->getDoctrine()->getManager()->flush();
 
 		$this->addFlash($type, $message);
 		return new RedirectResponse($this->admin->generateUrl('list'));
