@@ -166,7 +166,7 @@ class Scheduler implements ContainerAwareInterface
     /**
      * @param array $tags
      * @param array $criteria
-     * @return array
+     * @return array|\Jerive\Bundle\SchedulerBundle\Entity\Job[]
      */
     public function findByTags($tags, $criteria = array())
     {
@@ -187,7 +187,7 @@ class Scheduler implements ContainerAwareInterface
      * @param object $entity
      * @param array $tags
      * @param array $criteria
-     * @return Array
+     * @return Array|\Jerive\Bundle\SchedulerBundle\Entity\Job[]
      */
     public function findByEntityTag($entity, $tags = array(), $criteria = array())
     {
