@@ -1,7 +1,7 @@
 services:
     jerive_scheduler.proxy:
         class: Jerive\Bundle\SchedulerBundle\Schedule\DelayedProxy
-        scope: prototype
+        shared: false
         calls:
             - [setDoctrine, ["@doctrine"]]
 
