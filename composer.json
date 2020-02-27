@@ -10,7 +10,7 @@
     ],
     "minimum-stability": "dev",
     "require": {
-	"symfony/symfony": "*",
+	"symfony/symfony": "^3.0||^4.4",
     "doctrine/doctrine-bundle": "*"
     },
     "autoload": {
